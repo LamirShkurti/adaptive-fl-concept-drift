@@ -295,3 +295,4 @@ Nëse e përdorni këtë kod për punë akademike, ju lutem citoni punimin:
 MIT -- shih skedarin `LICENSE`. Dataset-i (`data/iot_telemetry_data.csv`,
 Kaggle, shkarkohet vetë sipas `data/README.md`) **NUK** është pjesë e kësaj
 licence dhe mbetet nën kushtet e Kaggle-t/autorit origjinal (shih §3).
+# adaptive-fl-concept-drift
