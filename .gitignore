@@ -1,0 +1,26 @@
+# Dataset-i (shkarkohet vete nga Kaggle, shih data/README.md -- s'duhet ne git,
+# si per madhesine ashtu edhe per licencen e Kaggle-s mbi rishperndarjen).
+data/*.csv
+
+# Output-et e eksperimenteve (CSV + figura) -- riprodhueshme nga kodi + dataset-i,
+# s'ka nevoje te ndiqen ne git (mund te behen shume te medha mbi shume xhirime).
+outputs/*.csv
+outputs/*.json
+outputs/figures/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Mjedise virtuale
+venv/
+.venv/
+env/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
