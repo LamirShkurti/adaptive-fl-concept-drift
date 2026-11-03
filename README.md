@@ -1,8 +1,7 @@
 # Federated Adaptive Forecasting for Heterogeneous IoT Sensor Networks Under Concept Drift
 
 Kodi shoqërues (companion code) i punimit me të njëjtin titull, Lamir Shkurti
-et al., 2026 (nën review, MDPI -- shih `data/README.md` dhe `LICENSE`). 9/9
-teste automatike kalojnë (`tests/`, shih §8).
+et al., 2026 (nën review).
 
 Sistem simulimi (jo-Docker, jo-Flask -- një proces i vetëm Python) për
 Federated Learning ku **çdo klient vendos vetë**, çdo raund, bazuar në
@@ -10,20 +9,14 @@ gjendjen e tij reale/simuluar: a trajnon fare, sa epochs lokale, sa shpesh
 dërgon update, a e dërgon update-in e plotë apo të kompresuar, a e mban
 modelin lokal aktiv, dhe a kalon në një variant model më të vogël.
 
-## 1. Çfarë është ky projekt (dhe çfarë NUK është)
+## 1. Çfarë është ky projekt
 
-Ky **NUK** është një rishkrim i dy projekteve të mëparshme (FL
-Flask-client/server me MNIST/Chest X-Ray, dhe pipeline-i i parashikimit të
-temperaturës me Jena/Tetovo). Është një sistem i ri, i ndërtuar nga e para,
-që:
+Është një sistem i ri, i ndërtuar nga e para, që:
 
 - **riperdor metodologjinë e provuar** të feature engineering (lag/rolling/
   ciklike, split kronologjik, skill-score kundrejt persistence) nga punimi i
   parashikimit të temperaturës;
-- **kalibron heterogjenitetin e pajisjeve simuluese** (CPU/temp/RAM/bandwidth)
-  nga statistikat REALE të matura në `UseCase1_R30_6C` (projekti FL me RPi4/5/
-  7/8 + MiniPC + Laptop) -- shih `src/config.py::DEVICE_CLASSES` për numrat
-  ekzaktë dhe burimin e tyre;
+- **kalibron heterogjenitetin e pajisjeve simuluese**
 - **shton nga e para** 7 dimensione që s'ekzistonin më parë: bateri/energji,
   RAM si sinjal, kompresim update-i, aktivizim/çaktivizim model, kalim në
   model më të vogël, shpërndarje jo-IID e të dhënave, dhe concept drift.
