@@ -1,8 +1,3 @@
-"""
-Feature engineering per parashikim temperature -- e njejta metodologji e
-perdorur ne punimin e meparshem (lag-e, rolling mean/std, delta, kodim
-ciklik kohe), tani e riperdorur per secilin klient FL veç e veç.
-"""
 
 from __future__ import annotations
 
