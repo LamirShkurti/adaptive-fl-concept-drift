@@ -1,21 +1,3 @@
-"""
-Modeli linear "FedAvg-compatible" per çdo klient.
-
-Pse linear (jo Random Forest/XGBoost si ne punimin e meparshem): FedAvg
-(mesatarizim peshash) ka kuptim vetem nese te gjithe klientet trajnojne TE
-NJEJTIN arkitekture parametrash dhe mund te pervetesojne ne menyre inkrementale
-(epoch-by-epoch) -- dy veti qe pemet (RF/XGBoost) nuk i kane, por qe perputhen
-natyrshem me regresion linear te trajnuar me gradient descent (njesoj si
-modeli "lite" qe eksportohet per Arduino MKR1000 ne punimin e meparshem).
-Mbajme Persistence si baseline (jo-FL, per referim).
-
-Dy varianta parametrash:
-  - "full"  -- te gjitha features e inxhinierizuara (lag/rolling/ciklike).
-  - "lite"  -- vetem vlerat aktuale te 2 sensoreve (temp, humidity), njesoj
-    si modeli i eksportuar per mikrokontrollues -- perdoret kur kontrolluesi
-    adaptiv vendos "kalo ne model me te vogel" (vendimi #6).
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field
