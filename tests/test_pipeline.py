@@ -1,11 +1,3 @@
-"""
-Teste rregresioni per pipeline-n e plote: nese dikush ndryshon config/features/
-models/controller/fl_simulation ne te ardhmen, keto teste zbulojne shpejt nese
-diçka u prish (NaN/inf, crash, apo sjellje qartesisht e gabuar si "asnjehere
-s'trajnon").
-
-Xhirim: python -m pytest tests/ -v   (ose thjesht: python tests/test_pipeline.py)
-"""
 
 import os
 import sys
