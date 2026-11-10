@@ -1,7 +1,5 @@
 # Federated Adaptive Forecasting for Heterogeneous IoT Sensor Networks Under Concept Drift
 
-**Companion code** for the research paper *Federated Adaptive Forecasting for Heterogeneous IoT Sensor Networks Under Concept Drift*, by Lamir Shkurti et al. (2026, under review).
-
 This repository contains a simulation framework for adaptive federated learning in heterogeneous IoT sensor networks. The framework is implemented as a standalone Python application, without Docker or Flask, and uses a single-process execution model.
 
 The central idea is to enable each simulated client to make independent, round-by-round decisions based on its current device state and local data conditions. These decisions determine whether local training should take place, how many local epochs should be executed, when model updates should be transmitted, whether updates should be compressed, whether the local model should remain active, and whether the client should switch to a lightweight model variant.
