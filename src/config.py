@@ -20,17 +20,6 @@ class DatasetPreset:
     time_format: Optional[str] = None
 
 
-# Environmental Sensor Telemetry Data (Kaggle: garystafford/environmental-sensor-data-132k)
-# 3 pajisje reale Raspberry Pi + sensor DHT22/MQ-* (co, humidity, light, lpg,
-# motion, smoke, temp), kampionuar ne Korrik 2020, ~1 jave, ~400k rreshta
-# (versioni "132k" eshte nje nenbashkesi/mostra me e vogel e te njejtit burim).
-# Tri device-at jane vendndodhje/pajisje fizikisht te ndryshme -> klient FL
-# natyrshem jo-IID, pa pasur nevoje per ndarje artificiale.
-#
-# Kolonat origjinale ne CSV: ts, device, co, humidity, light, lpg, motion, smoke, temp
-# ("co" = monoksid karboni, jo CO2 -- emer qe e kam pasur gabim ne nje version
-# te meparshem; e verifikova direkt kunder headerit real te CSV-se).
-# "device" eshte nje string tip MAC address, p.sh. "b8:27:eb:bf:9d:51".
 PRESET_IOT_TELEMETRY = DatasetPreset(
     name="iot_telemetry",
     time_col="ts",
