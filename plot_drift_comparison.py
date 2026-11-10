@@ -1,37 +1,4 @@
 #!/usr/bin/env python3
-"""
-Gjeneron figuren e krahasimit te drift-it (adaptive vs. non-adaptive, RMSE e
-klientit te targetuar nder raunde) -- SAKTESISHT figura qe eshte perdorur ne
-Seksionin 4.2 te punimit (`figures/drift_rmse_comparison.png`).
-
-Ky eshte skript i vecante nga `analyze_results.py` sepse ai fokusohet te
-MESATARJA e te gjithe klienteve (e dobishme per krahasimin baseline, Seksioni
-4.1), ndersa per drift duam RMSE-ne vetem te klientit te TARGETUAR (ndryshe
-sinjali i drift-it "zhytet" ne mesataren e 3 klienteve, 2 prej te cileve
-s'kane drift fare).
-
-Perdorim (nga brenda `fed_adaptive_forecasting/`, pasi te keni xhiruar te 4
-komandat e drift-it te README_OVERLEAF.md §3.1 dhe te keni skedaret CSV te
-rinj ne `outputs/`):
-
-    python plot_drift_comparison.py \
-        --abrupt-nonadaptive outputs/nonadaptive_80r_drift_abrupt.csv \
-        --abrupt-adaptive    outputs/adaptive_80r_drift_abrupt.csv \
-        --gradual-nonadaptive outputs/nonadaptive_80r_drift_gradual.csv \
-        --gradual-adaptive    outputs/adaptive_80r_drift_gradual.csv \
-        --target b8:27:eb:bf:9d:51 \
-        --start-round 40 --ramp-rounds 30 \
-        --output-dir outputs/figures
-
-(Parametrat --target/--start-round/--ramp-rounds kane tashme vlerat e
-mesiperme si default -- te njejtat qe perdoren ne komandat e README_OVERLEAF.md
--- pra mund t'i leni te pa-specifikuara nese s'i keni ndryshuar vete.)
-
-Prodhon:
-  - <output-dir>/drift_rmse_comparison.png  (figura 2-panele e perdorur ne punim)
-  - <output-dir>/drift_phase_summary.csv    (RMSE mesatare pre-drift/gjate/pas,
-    per skenar+politike -- te njejtat numra qe shkuan ne Tabelen 4 te punimit)
-"""
 
 from __future__ import annotations
 
