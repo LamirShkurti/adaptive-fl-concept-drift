@@ -1,21 +1,4 @@
 #!/usr/bin/env python3
-"""
-Pike hyrjeje CLI per sistemin Federated Adaptive Forecasting.
-
-Perdorim tipik (shih README.md per detaje te plota):
-
-    python run_experiment.py --data data/iot_telemetry_data.csv --policy adaptive
-    python run_experiment.py --data data/iot_telemetry_data.csv --policy non_adaptive
-    python run_experiment.py --data data/iot_telemetry_data.csv --policy adaptive \
-        --drift "b8:27:eb,gradual_sensor_bias,40,3.0"
-
-    KUJDES: --drift perdor PRESJE (",") per te ndare fushat, JO ":" -- ID-te
-    e pajisjeve Kaggle vete permbajne ":" (p.sh. "b8:27:eb:bf:9d:51"), prandaj
-    ":" NUK mund te perdoret si ndares (shih parse_drift_arg() me poshte).
-
-Secili run shkruan nje CSV te plote me log per-raund-per-klient ne
-outputs/<run-name>.csv -- perdoret pastaj nga analyze_results.py.
-"""
 
 from __future__ import annotations
 
