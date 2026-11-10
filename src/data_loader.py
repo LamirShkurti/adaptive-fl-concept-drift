@@ -1,15 +1,3 @@
-"""
-Ngarkimi dhe pastrimi i Environmental Sensor Telemetry Data (Kaggle).
-
-Pret skedarin te vendosur ne data/iot_telemetry_data.csv (shih data/README.md
-per udhezime shkarkimi). Kolonat origjinale: ts, device, co, humidity, light,
-lpg, motion, smoke, temp.
-
-Ndan te dhenat sipas kolones 'device' (3 pajisje reale, MAC-adresa) ne 3
-seri kohore te veçanta -- keto behen klientet FL (jo-IID natyrshem, sepse
-jane vendndodhje/kushte fizike te ndryshme, jo nje ndarje artificiale e nje
-dataset-i te vetem).
-"""
 
 from __future__ import annotations
 
