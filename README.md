@@ -1,63 +1,95 @@
 # Federated Adaptive Forecasting for Heterogeneous IoT Sensor Networks Under Concept Drift
 
-Kodi shoqërues (companion code) i punimit me të njëjtin titull, Lamir Shkurti
-et al., 2026 (nën review).
+**Companion code** for the research paper *Federated Adaptive Forecasting for Heterogeneous IoT Sensor Networks Under Concept Drift*, by Lamir Shkurti et al. (2026, under review).
 
-Sistem simulimi (jo-Docker, jo-Flask -- një proces i vetëm Python) për
-Federated Learning ku **çdo klient vendos vetë**, çdo raund, bazuar në
-gjendjen e tij reale/simuluar: a trajnon fare, sa epochs lokale, sa shpesh
-dërgon update, a e dërgon update-in e plotë apo të kompresuar, a e mban
-modelin lokal aktiv, dhe a kalon në një variant model më të vogël.
+This repository contains a simulation framework for adaptive federated learning in heterogeneous IoT sensor networks. The framework is implemented as a standalone Python application, without Docker or Flask, and uses a single-process execution model.
 
-## 1. Çfarë është ky projekt
+The central idea is to enable each simulated client to make independent, round-by-round decisions based on its current device state and local data conditions. These decisions determine whether local training should take place, how many local epochs should be executed, when model updates should be transmitted, whether updates should be compressed, whether the local model should remain active, and whether the client should switch to a lightweight model variant.
 
-Është një sistem i ri, i ndërtuar nga e para, që:
+## 1. Project Overview
 
-- **riperdor metodologjinë e provuar** të feature engineering (lag/rolling/
-  ciklike, split kronologjik, skill-score kundrejt persistence) nga punimi i
-  parashikimit të temperaturës;
-- **kalibron heterogjenitetin e pajisjeve simuluese**
-- **shton nga e para** 7 dimensione që s'ekzistonin më parë: bateri/energji,
-  RAM si sinjal, kompresim update-i, aktivizim/çaktivizim model, kalim në
-  model më të vogël, shpërndarje jo-IID e të dhënave, dhe concept drift.
+This project introduces a new simulation framework built from the ground up to investigate adaptive federated learning under device heterogeneity, non-IID data distributions, and concept drift.
 
-## 2. Instalimi
+The implementation builds on the feature engineering and evaluation methodology established in our previous temperature forecasting research, including lag-based, rolling-window, and cyclical features, chronological data splitting, and skill-score evaluation against a persistence baseline.
+
+The framework extends this methodology with seven additional capabilities:
+
+- Battery and energy consumption modelling.
+- RAM availability as an input to client-side decision-making.
+- Model update compression.
+- Dynamic model activation and deactivation.
+- Switching between full and lightweight model variants.
+- Non-IID data distribution across clients.
+- Concept drift injection and detection.
+
+These mechanisms are integrated into a rule-based adaptive controller that coordinates client behaviour throughout the federated learning process.
+
+## 2. Installation
+
+Clone the repository and install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 3. Dataset-i -- SHIH `data/README.md`
+## 3. Dataset
 
-Përmbledhje: shkarko **Environmental Sensor Telemetry Data** nga Kaggle
-(`garystafford/environmental-sensor-data-132k`) dhe vendose te
-`data/iot_telemetry_data.csv`. Pse ky dataset specifik:
+**Refer to `data/README.md` for detailed dataset preparation instructions.**
 
-- **3 pajisje reale** (Raspberry Pi + DHT22/MQ-sensor array), identifikuar me
-  adresë MAC -- bëhen klientët FL natyrshëm jo-IID (vendndodhje/kushte fizike
-  të ndryshme), pa nevojë për ndarje artificiale të një dataset-i të vetëm.
-- Target: `temp` (temperaturë) -- konsistent me fokusin e punimit të
-  mëparshëm.
-- I lehtë (CSV i vetëm, pa autentikim API).
+The experiments use the **Environmental Sensor Telemetry Data** dataset available on Kaggle:
 
-## 4. Xhirimi i një eksperimenti
+`garystafford/environmental-sensor-data-132k`
+
+Download the dataset and place the CSV file at:
+
+```text
+data/iot_telemetry_data.csv
+```
+
+The dataset was selected for the following reasons:
+
+- **Multiple physical devices:** The dataset contains measurements from three Raspberry Pi devices equipped with DHT22 and MQ sensor arrays. Device MAC addresses provide a natural basis for defining separate federated clients.
+- **Non-IID characteristics:** Measurements collected by different devices reflect different physical conditions and locations, providing a basis for studying heterogeneous local data distributions without artificially partitioning a single data stream.
+- **Forecasting target:** The `temp` variable is used as the temperature prediction target, maintaining consistency with our previous forecasting research.
+- **Accessible data format:** The dataset is distributed as a CSV file and does not require API authentication.
+
+## 4. Running Experiments
+
+The framework supports two principal experimental configurations: a non-adaptive baseline and the proposed adaptive policy.
+
+### 4.1. Non-adaptive baseline
+
+The baseline follows a fixed execution strategy: clients train in every round and transmit full model updates.
 
 ```bash
-# Baseline jo-adaptive (si UseCase1_NOAdaptive): trajno gjithmonë, dërgo gjithmonë të plotë.
 python run_experiment.py --data data/iot_telemetry_data.csv --policy non_adaptive --rounds 80
+```
 
-# Politika adaptive (kontributi i ri, 6 dimensionet):
+### 4.2. Adaptive policy
+
+The adaptive configuration enables the proposed client-side decision-making mechanisms.
+
+```bash
 python run_experiment.py --data data/iot_telemetry_data.csv --policy adaptive --rounds 80
+```
 
-# Me skenar concept-drift mbi një pajisje specifike (shih §6):
+### 4.3. Experiments with concept drift
+
+Concept drift can be injected into a specific client to evaluate the response of the adaptive controller under changing data conditions.
+
+```bash
 python run_experiment.py --data data/iot_telemetry_data.csv --policy adaptive --rounds 80 \
     --drift "b8:27:eb,gradual_sensor_bias,40,3.0"
 ```
 
-Çdo xhirim shkruan `outputs/<run-name>.csv` (log për-raund-për-klient) dhe
-`outputs/<run-name>_config.json` (parametrat e plotë -- për riprodhueshmëri).
+Each experiment generates two output files:
 
-### Krahasimi dhe figurat
+- `outputs/<run-name>.csv` — round-by-round, client-level experimental logs.
+- `outputs/<run-name>_config.json` — complete experiment configuration and parameters, supporting reproducibility.
+
+### 4.4. Result analysis and visualization
+
+The `analyze_results.py` script compares experimental runs and generates summary statistics and visualizations.
 
 ```bash
 python analyze_results.py \
@@ -66,226 +98,366 @@ python analyze_results.py \
     --output-dir outputs/figures
 ```
 
-Prodhon: `summary_table.csv` (RMSE mesatare, bajte totale, % raunde trajnim/
-dërgim/kompresim/lite/çaktivizim), `rmse_over_rounds.png`,
-`bytes_cumulative.png`, `decisions_<label>.png`.
+The analysis produces:
 
-### Krahasimi i drift-it (figura e Seksionit 4.2 te punimit)
+- `summary_table.csv` — aggregate performance and communication statistics, including mean RMSE, total transmitted bytes, and the percentage of rounds involving training, transmission, compression, lightweight model operation, and deactivation.
+- `rmse_over_rounds.png` — RMSE evolution across communication rounds.
+- `bytes_cumulative.png` — cumulative communication overhead.
+- `decisions_<label>.png` — visualization of client-side decisions for each experimental configuration.
 
-`analyze_results.py` mesatarizon RMSE-në mbi TË TRE klientët -- e dobishme
-për baseline-in (§4.1), por e papërshtatshme për drift, sepse vetëm 1 nga 3
-klientët ka drift (sinjali "zhytet" te mesatarja). Për këtë përdoret një
-skript i veçantë, `plot_drift_comparison.py`, që ndjek vetëm klientin e
-targetuar:
+### 4.5. Client-specific concept drift analysis
+
+The standard analysis script aggregates RMSE across all three clients. This is appropriate for evaluating the overall performance of the baseline configurations (Section 4.1 of the paper), but it can obscure the effects of concept drift when only one client is affected.
+
+For this reason, `plot_drift_comparison.py` provides a separate analysis that tracks the RMSE of the targeted client.
 
 ```bash
 python plot_drift_comparison.py \
     --abrupt-nonadaptive outputs/nonadaptive_80r_drift_abrupt.csv \
-    --abrupt-adaptive    outputs/adaptive_80r_drift_abrupt.csv \
+    --abrupt-adaptive outputs/adaptive_80r_drift_abrupt.csv \
     --gradual-nonadaptive outputs/nonadaptive_80r_drift_gradual.csv \
-    --gradual-adaptive    outputs/adaptive_80r_drift_gradual.csv \
+    --gradual-adaptive outputs/adaptive_80r_drift_gradual.csv \
     --output-dir outputs/figures
 ```
 
-(`--target`/`--start-round`/`--ramp-rounds` kanë tashmë si default pikërisht
-vlerat e komandës së drift-it në §4 më sipër -- lini pa i specifikuar nëse
-s'i keni ndryshuar.) Prodhon `drift_rmse_comparison.png` (figura 2-panele, SAKTËSISHT
-siç është në punim, Figura 4) dhe `drift_phase_summary.csv` (RMSE mesatare
-pre-drift/gjatë/pas, numrat e Tabelës 4). Printon edhe një verifikim
-("diferenca max. e RMSE për raundet < start\_round") që duhet të dalë 0 --
-nëse del ndryshe nga 0, diçka ka ndryshuar mes xhirimeve (p.sh. `--seed`).
+The default values for `--target`, `--start-round`, and `--ramp-rounds` correspond to the drift configuration used in the experiments. They can be overridden when different scenarios are required.
 
-## 5. Arkitektura (9 sinjale -> 6 vendime)
+The script generates:
 
-Shih `src/controller.py` (dokumentim i plotë në docstring). Përmbledhje:
+- `drift_rmse_comparison.png` — a two-panel comparison corresponding to Figure 4 in the paper.
+- `drift_phase_summary.csv` — mean RMSE values for the pre-drift, drift, and post-drift phases, providing the data reported in Table 4.
 
-**Sinjalet** (`InputSignals`): bateri %, CPU %, RAM e lirë, bandwidth, latencë,
-sasia e të dhënave të reja, shmangia nga shpërndarja historike lokale, trendi
-i RMSE-së së fundit, raporti i zbulimit të drift-it (EWMA/baseline).
+An additional consistency check reports the maximum RMSE difference between the compared runs before the configured drift onset. This value should be zero. A non-zero result indicates that the experimental configurations differ in some respect, for example, due to different random seeds.
 
-**Vendimet** (`Decision`): trajno/kapërce, epochs lokale, dërgo/mbaj
-update-in, i plotë/i kompresuar, model aktiv/jo-aktiv, variant i plotë/lite.
+## 5. Adaptive Controller Architecture
 
-Çdo prag konfigurohet te `src/config.py::ControllerThresholds` -- ndryshoji
-lirisht dhe rixhiro për analizë ndjeshmërie (sensitivity analysis), e cila
-shpesh pritet nga recensentët për një kontribut "rule-based controller".
+The central component of the proposed framework is the adaptive controller implemented in `src/controller.py`.
 
-## 6. Concept drift (shih `src/drift.py`)
+It maps **nine input signals to six client-side decisions**.
 
-Dataset-i Kaggle mbulon vetëm ~1 javë -- s'ka drift stinor afatgjatë si në
-Tetovo. Drift-i **injektohet shprehimisht** (duhet deklaruar kështu në
-punim, jo si "zbulim organik"):
+### 5.1. Input signals
 
-- `gradual_sensor_bias`: bias aditiv që rritet ngadalë deri në `magnitude`
-  brenda `ramp_rounds`, i aplikuar njëlloj te target-i DHE features e
-  lidhura me `temp` (analoge me ngrohjen diellore të node4/UB).
-  **Shënim metodologjik i rëndësishëm**: pasi bias-i stabilizohet (mbaron
-  ramp-i), një model autoregresiv linear e "përthith" pjesërisht automatikisht
-  (i njëjti offset del në lag-features DHE target) -- rritja e gabimit
-  REALE, e matshme, ndodh **gjatë vetë ramp-it**, jo domosdoshmërisht gjatë
-  gjithë periudhës pasuese. Kjo vetë është një gjetje e vlefshme për punim
-  (dallon "drift transitor" nga "drift i qëndrueshëm").
-- `abrupt_relationship_shift`: në një moment, shkallëzon marrëdhënien
-  humidity->temp -- drift "i papritur" klasik (taksonomia Gama et al. 2014),
-  efekti i të cilit **MBETET** (nuk përthithet vetvetiu), i përshtatshëm për
-  të treguar rikuperim afatgjatë nga kontrolluesi adaptiv.
+The controller considers the following signals:
 
-Format argumenti CLI: `--drift "<pjesë_ID_pajisjeje>,<lloji>,<raundi_fillimit>,<madhësia>"`
-(presje -- jo ":" -- sepse ID-të e pajisjeve Kaggle vetë përmbajnë ":").
+1. Battery charge level.
+2. CPU utilization.
+3. Available RAM.
+4. Network bandwidth.
+5. Network latency.
+6. Amount of newly available local data.
+7. Deviation from the historical local data distribution.
+8. Recent RMSE trend.
+9. Concept drift detection ratio, based on an EWMA-to-baseline comparison.
 
-### 6.1 FIKS (tetor 2026): `start_round`/`ramp_rounds` ishin në njësi të gabuar
+### 5.2. Adaptive decisions
 
-**Nëse keni xhiruar ndonjë eksperiment me `--drift` PARA kësaj date, rixhironi
-atë -- rezultatet e vjetra NUK janë të vlefshme.** Eksperimentet PA `--drift`
-(baseline-i adaptive/non_adaptive, ablacionet) NUK preken fare nga ky fiks.
+Based on these signals, each client independently determines:
 
-Bug-u: `apply_drift_to_frame` (te `src/drift.py`) merrte `live_df.index` (çdo
-RRESHT RAW, para feature engineering) dhe e trajtonte çdo rresht si një
-"raund" të vetëm (`enumerate()`). Në të dhënat reale (`resample_freq=5min`,
-tipikisht ~6-8 rreshta raw/raund me `--rounds 80`), kjo bënte që
-`start_round=40` (synuar si RAUNDI 40) të aplikohej efektivisht te **rreshti
-raw #40**, pra rreth **raundi ~5-6** -- ~7x më shpejt se sa duhej -- dhe
-`ramp_rounds=30` të përfundonte brenda ~4-5 raundeve, jo 30. U zbulua duke
-analizuar një batch eksperimentesh reale (RMSE e klientit të targetuar ishte
-tashmë e ngritur te raundi 6, shumë përpara `start_round=40` të konfiguruar).
-U fiksua duke e llogaritur numrin e saktë të raundit për çdo rresht raw
-(`_chronological_round_slices` mbi `len(live_df)`, e njëjta logjikë e
-përdorur më vonë për kufijtë përfundimtarë të raundeve) PARA se t'ia kalojmë
-`apply_drift_to_frame`, në vend të `live_df.index`.
+1. **Training participation:** Whether to perform local training or skip the current round.
+2. **Local training intensity:** Number of local epochs.
+3. **Update transmission:** Whether to transmit the current update or retain it locally.
+4. **Update representation:** Whether to send a full-precision or compressed update.
+5. **Model availability:** Whether the local model remains active or becomes inactive.
+6. **Model complexity:** Whether to use the full or lightweight model variant.
 
-Pse nuk u kap nga testet ekzistuese: fixture-i i testeve (`tests/fixtures/`)
-+ `n_live_rounds` i vogël i përdorur atje bënin që raport rreshta/raund të
-mos ishte realisht i madh në mënyrë që të dallohej qartë, DHE testi ekzistues
-(`test_drift_injection_raises_error_on_targeted_client`) kontrollon vetëm "a u
-rrit gabimi MANDEJ", jo "a u rrit TOCKA kur duhej" -- kalon qoftë me qoftë
-pa bug. Testi i ri `test_drift_never_touches_rounds_before_start_round` (te
-`tests/test_pipeline.py`) kontrollon pikërisht këtë: me një raport
-rreshta/raund >> 1, çdo raund PARA `start_round` duhet të jetë **identik**
-mes skenarit "none" dhe skenarit me drift -- dhe DËSHTON në kodin e vjetër
-(e verifikova drejtpërdrejt para se ta dërgoj ky fiks), kalon me kodin e ri.
+The decision thresholds are configurable through `ControllerThresholds` in `src/config.py`.
 
-## 7. Modeli i energjisë/baterisë (shih `src/device_state.py`)
+This configuration allows alternative threshold settings to be evaluated without modifying the controller implementation. Such experiments also support sensitivity analysis, which is particularly relevant when assessing the behaviour and robustness of a rule-based adaptive control mechanism.
 
-Bateria **evoluon realisht** gjatë simulimit (nuk është numër i rastësishëm
-çdo raund): zbret sipas rrymës së tërhequr (idle kundrejt training, plus
-kosto shtesë për dërgim) dhe kohëzgjatjes së raundit. Kapacitetet/rrymat janë
-**supozime inxhinierike të deklaruara** (jo matje -- `UseCase1` nuk mati
-baterie reale), të ankoruara te numra tipikë të publikuar (Raspberry Pi
-4/5 power draw, power-bank 10-20k mAh) dhe te profili real Arduino MKR1000
-nga punimi i mëparshëm (Seksioni 4.5: ~204-259 cikle, 4.3-5.4 µs/parashikim
-@ 48MHz). Deklaroje këtë qartë në punim -- mos e paraqit si matje fizike.
+## 6. Concept Drift Modelling
 
-## 8. Testet
+Concept drift injection and detection are implemented in `src/drift.py`.
+
+The selected Kaggle dataset covers approximately one week of measurements and therefore does not provide sufficient temporal coverage for investigating long-term seasonal changes comparable to those observed in the Tetovo deployment data.
+
+Consequently, concept drift is introduced explicitly through controlled simulation scenarios. These scenarios should be interpreted as injected drift rather than naturally occurring drift observed in the original dataset.
+
+Two drift mechanisms are supported.
+
+### 6.1. Gradual sensor bias
+
+`gradual_sensor_bias` introduces an additive bias that increases progressively until the specified magnitude is reached within the configured number of rounds.
+
+The bias is applied consistently to the temperature target and the corresponding temperature-related features. This scenario represents a gradual sensor offset, analogous to the self-heating behaviour observed in node4/UB.
+
+An important methodological consideration is that, once the bias stabilizes, an autoregressive linear model can partially absorb the offset because the same shift is reflected in both the lag features and the target variable.
+
+As a result, the measurable increase in forecasting error may be concentrated during the transition period rather than persisting throughout the entire post-drift phase. This distinction is relevant when interpreting the difference between transient drift effects and persistent changes in the underlying data relationships.
+
+### 6.2. Abrupt relationship shift
+
+`abrupt_relationship_shift` introduces a sudden change in the relationship between humidity and temperature.
+
+Unlike the additive bias scenario, the altered relationship persists after the drift onset. This provides a suitable setting for evaluating the longer-term adaptation and recovery behaviour of the federated learning system.
+
+The scenario follows the general concept drift taxonomy discussed by Gama et al. (2014).
+
+### 6.3. Command-line configuration
+
+The drift argument follows this format:
+
+```text
+--drift "<device_id_prefix>,<drift_type>,<start_round>,<magnitude>"
+```
+
+For example:
+
+```bash
+--drift "b8:27:eb,gradual_sensor_bias,40,3.0"
+```
+
+The device identifier is specified using a prefix because the original MAC addresses contain colon characters.
+
+### 6.4. Important correction: drift round indexing (October 2026)
+
+A correction was introduced in October 2026 to address an indexing issue in the concept drift injection mechanism.
+
+**Experiments involving `--drift` conducted before this correction must be repeated. Their previous drift-related results should not be considered valid.**
+
+Experiments without drift injection, including the adaptive and non-adaptive baselines and ablation experiments, are not affected.
+
+The original implementation used the raw DataFrame index and treated each raw observation as an individual simulation round. However, a single simulation round typically contains multiple resampled observations.
+
+With the default five-minute resampling frequency, approximately six to eight raw observations may correspond to one simulation round. Consequently, a configured drift onset at round 40 could effectively occur around round 5 or 6, while the gradual transition could finish substantially earlier than intended.
+
+The issue was identified through the analysis of experimental logs, where the targeted client's RMSE increased considerably before the configured drift onset.
+
+The implementation was corrected by calculating the chronological round boundaries using `_chronological_round_slices` before applying the drift transformation. This ensures that raw observations are mapped to their corresponding simulation rounds.
+
+A regression test, `test_drift_never_touches_rounds_before_start_round`, was added to `tests/test_pipeline.py`. It verifies that all rounds preceding the configured drift onset remain identical between the no-drift and drift-enabled scenarios.
+
+This test specifically addresses the temporal correctness of drift injection rather than merely checking whether drift eventually increases the prediction error.
+
+## 7. Energy and Battery Model
+
+The device energy model is implemented in `src/device_state.py`.
+
+Battery state evolves throughout the simulation rather than being assigned independently at each communication round. Battery depletion depends on estimated current consumption, round duration, and the operating mode of the client.
+
+The model distinguishes between:
+
+- Idle energy consumption.
+- Additional consumption during local training.
+- Communication-related energy costs.
+
+The device capacities and current consumption values are engineering assumptions rather than direct physical measurements. They are informed by published Raspberry Pi 4/5 power consumption figures, typical 10,000–20,000 mAh power-bank capacities, and the computational profile reported in our previous Arduino MKR1000 deployment study.
+
+In particular, the previous study reported approximately 204–259 CPU cycles per prediction, corresponding to 4.3–5.4 μs at 48 MHz.
+
+These values provide a reference for computational cost modelling. However, the simulated battery consumption should not be interpreted as experimentally measured energy consumption from physical IoT devices.
+
+This distinction is important when interpreting the results and reporting the experimental methodology.
+
+## 8. Automated Tests
+
+The repository includes regression tests for the main simulation components.
+
+Run the test suite using:
 
 ```bash
 python tests/test_pipeline.py
-# ose, nëse ke pytest:
+```
+
+Alternatively, if `pytest` is installed:
+
+```bash
 python -m pytest tests/ -v
 ```
 
-9 teste rregresioni: ngarkimi gjen 3 pajisjet, politika adaptive xhiron pa
-NaN/Inf, baseline-i jo-adaptiv trajnon/dërgon gjithmonë siç pritet, drift-i
-rrit gabimin gjatë ramp-it, drift-i NUK prek raunde para `start_round` (shih
-§6.1 FIKS), `prepare_clients()` refuzon `--rounds` shumë të lartë për
-rreshta "live" të pakët (shih §9.1), adaptive dërgon <= bajte se
-non_adaptive, dhe 2 teste ablacioni (bosht 3 "send-hold", bosht 4
-"compression"). Përdorin një fixture TË VOGËL sintetik
-(`tests/fixtures/tiny_iot_telemetry.csv`, VETËM për CI -- jo për rezultate
-punimi).
+The test suite covers:
 
-## 9. Çfarë duhet VETË (eksperimentet reale)
+1. Successful dataset loading and identification of the three devices.
+2. Execution of the adaptive policy without NaN or Inf values.
+3. Expected training and transmission behaviour of the non-adaptive baseline.
+4. Error increase under gradual concept drift.
+5. Correct drift onset, ensuring that earlier rounds remain unaffected.
+6. Validation of excessive round counts relative to the available live samples.
+7. Communication overhead comparison between adaptive and non-adaptive configurations.
+8. Ablation testing of the update transmission mechanism.
+9. Ablation testing of update compression.
 
-1. Vendos `data/iot_telemetry_data.csv` (shih §3/`data/README.md`).
-2. Xhiro `non_adaptive` dhe `adaptive` (dhe variante drift) me `--rounds`
-   mjaftueshëm (sugjeroj 60-120, provo disa vlera -- varet nga sa rreshta ka
-   dataset-i pas resample; shih §9.1 PARA se te shkosh mbi ~95 raunde).
+The tests use a small synthetic dataset located at:
 
-### 9.1 KUJDES: `--rounds` i lartë + `--resample-freq` parazgjedhje = ZERO trajnim (gjetur/fiksuar tetor 2026)
+```text
+tests/fixtures/tiny_iot_telemetry.csv
+```
 
-Numri total i rreshtave "live" (25% e dataset-it, test\_frac) është **FIKS**
-për një `--resample-freq` të dhënë -- rritja e `--rounds` thjesht e ndan të
-njëjtën sasi rreshtash në më shumë, më të vegjël copëza. Me `resample_freq`
-parazgjedhje (`5min`) dhe dataset-in Kaggle, ka ~577 rreshta "live"/klient:
-me `--rounds 80` kjo jep ~7 rreshta/raund (mbi `min_new_samples_to_train=6`,
-OK); me `--rounds 200` jep vetëm ~2.9/raund (**NËN** 6) -- axis-i (1) i
-kontrolluesit ("new\_samples < min -> skip train") e kapërcen trajnimin **NE
-ÇDO RAUND, GJITHË XHIRIMIN**, pa asnjë gabim -- thjesht një CSV me
-`rounds_trained=0` kudo, që duket si rezultat "normal" nëse s'e kontrollon
-shprehimisht atë kolonë (RMSE ende llogaritet, nga peshat e warm-start-it, pa
-asnjë trajnim/dërgim real -- numra që duken aq sa duhen po janë bosh).
+This fixture is intended exclusively for automated testing and continuous integration. It is not used to produce the experimental results reported in the paper.
 
-`prepare_clients()` tani e zbulon vetë këtë (për politikën `adaptive`, pa
-`--ablate-train-skip`) dhe hedh `ValueError` menjëherë, me numrin e saktë të
-`--rounds` maksimale të sigurta për setup-in tënd -- pra nuk mund të të ndodhë
-në heshtje më. Nëse të duhen vërtet shumë raunde (p.sh. 200, për ta ekspozuar
-boshtin e çaktivizimit -- shih README\_OVERLEAF.md §3.3 te paketa e punimit),
-zgjidhja është të
-zvogëlosh `--resample-freq` (më shumë rreshta gjithsej), jo thjesht të rrisësh
-`--rounds`:
+## 9. Experimental Configuration and Reproducibility
+
+The following steps are required to reproduce the main experiments.
+
+### 9.1. Dataset preparation
+
+Download the Kaggle dataset and place it at:
+
+```text
+data/iot_telemetry_data.csv
+```
+
+Refer to `data/README.md` for the complete instructions.
+
+### 9.2. Baseline and adaptive experiments
+
+Execute both configurations using the same dataset and consistent experimental settings.
+
+A range of 60–120 rounds may be considered, depending on the resampling frequency and the amount of available live data.
+
+Before increasing the number of rounds, however, it is important to consider the number of new observations available to each client per round.
+
+### 9.3. Important: Minimum training samples and high round counts
+
+A limitation related to the interaction between the number of rounds and the resampling frequency was identified and corrected in October 2026.
+
+The total number of live observations, corresponding to the configured test fraction, remains fixed for a given resampling frequency. Increasing the number of simulation rounds therefore divides the same number of observations into smaller round-level batches.
+
+With the default `5min` resampling frequency, the Kaggle dataset provides approximately 577 live observations per client.
+
+For example:
+
+- With 80 rounds, each client receives approximately 7 observations per round, which is sufficient for the default `min_new_samples_to_train=6` threshold.
+- With 200 rounds, the number decreases to approximately 2.9 observations per round, falling below the minimum required for local training.
+
+In the latter case, the adaptive controller may skip local training in every round. The experiment can still produce RMSE values because predictions are generated using the existing model parameters, but the resulting logs would not represent an actual training and communication process.
+
+To prevent this situation, `prepare_clients()` now validates the configuration for the adaptive policy and raises a `ValueError` when the selected number of rounds would prevent meaningful training, unless the corresponding training-skip ablation is enabled.
+
+For experiments requiring a larger number of rounds, increasing the temporal resolution through a smaller resampling interval is preferable to simply increasing `--rounds`.
+
+The following 200-round configuration was tested successfully:
 
 ```bash
-# E VERIFIKUAR vetë -- funksionon, trajnon/dergon realisht, dhe battery i
-# klientëve bateri-të-kufizuar bie deri ne 0% (boshti 5 EKSPOZOHET plotësisht,
-# model_active=False per shumicen e raundeve):
 python run_experiment.py --data data/iot_telemetry_data.csv --policy adaptive \
-    --rounds 200 --resample-freq 2min --round-minutes 14.41 --run-name adaptive_200r
+    --rounds 200 --resample-freq 2min --round-minutes 14.41 \
+    --run-name adaptive_200r
+
 python run_experiment.py --data data/iot_telemetry_data.csv --policy non_adaptive \
-    --rounds 200 --resample-freq 2min --round-minutes 14.41 --run-name nonadaptive_200r
+    --rounds 200 --resample-freq 2min --round-minutes 14.41 \
+    --run-name nonadaptive_200r
 ```
 
-(`--round-minutes 14.41` = sa minuta reale përfaqëson mesatarisht 1 raund me
-këtë setup, `2min` x ~7.2 rreshta/raund -- përdoret vetëm nga modeli i
-baterisë, mbaje konsistente me `--resample-freq`/`--rounds` e zgjedhura.)
-3. Xhiro `analyze_results.py` për figura/tabela.
-4. Opsionale, por e rekomanduar për punim: **ablacione** -- tani të integruara
-   drejtpërdrejt si flamuj CLI (s'ka nevojë të editosh `controller.py`):
-   `--ablate-train-skip`, `--ablate-epoch-adapt`, `--ablate-send-hold`,
-   `--ablate-compression`, `--ablate-deactivation`, `--ablate-lite-switch`
-   (secili çaktivizon VETËM atë dimension të vetëm, 5 të tjerët mbeten plotësisht
-   adaptivë). Shembull:
-   ```bash
-   python run_experiment.py --data data/iot_telemetry_data.csv --policy adaptive \
-       --rounds 80 --ablate-compression --run-name adaptive_80r_ablate_compression
-   ```
-   Krahaso `outputs/adaptive_80r.csv` (pa ablacion) me secilin `outputs/adaptive_80r_ablate_*.csv`
-   për të izoluar kontributin e secilit dimension.
-5. Më dërgo CSV-të e outputit (`outputs/*.csv`) dhe/ose figurat -- unë i
-   analizoj, i kthej në tabela/figura gati-për-punim, dhe shkruaj draft-in.
+The `--round-minutes 14.41` parameter represents the approximate real-world duration associated with one simulation round under this configuration. It is used by the battery model and should remain consistent with the selected resampling frequency and number of rounds.
 
-## 10. Struktura e kodit
+This configuration also enables the battery-constrained clients to reach a depleted battery state, allowing the model deactivation mechanism to be evaluated over an extended simulation.
 
-```
-src/config.py        -- presets, parametra eksperimenti, profilet e pajisjeve, pragjet
-src/data_loader.py    -- ngarkim/pastrim/ndarje-sipas-device CSV
-src/features.py        -- lag/rolling/ciklike (full) dhe minimal (lite)
-src/models.py           -- regresion linear FedAvg-compatible (gradient descent, clipping)
-src/device_state.py      -- bateri/CPU/RAM/rrjet të simuluara, evolim real i baterisë
-src/drift.py               -- injektim + zbulim (EWMA) i concept drift
-src/compression.py          -- kuantizim 8-bit + delta per update të kompresuar
-src/controller.py             -- KONTRIBUTI QENDROR: 9 sinjale -> 6 vendime
-src/fl_simulation.py            -- orkestrimi FedAvg raund-pas-raundi
-run_experiment.py                -- CLI
-analyze_results.py                -- krahasim (mesatare mbi klientë) + figura + tabelë përmbledhëse
-plot_drift_comparison.py             -- figura e krahasimit të drift-it (vetëm klienti i targetuar, shih §4)
-tests/                                 -- teste automatike (fixture i vogël sintetik)
+### 9.4. Ablation experiments
+
+Ablation experiments are supported directly through command-line arguments. Each flag disables one adaptive mechanism while leaving the remaining mechanisms enabled.
+
+The available options are:
+
+- `--ablate-train-skip`
+- `--ablate-epoch-adapt`
+- `--ablate-send-hold`
+- `--ablate-compression`
+- `--ablate-deactivation`
+- `--ablate-lite-switch`
+
+For example, to evaluate the contribution of update compression:
+
+```bash
+python run_experiment.py --data data/iot_telemetry_data.csv \
+    --policy adaptive --rounds 80 \
+    --ablate-compression \
+    --run-name adaptive_80r_ablate_compression
 ```
 
-## 11. Citimi
+The resulting experiment can be compared against the standard adaptive configuration:
 
-Nëse e përdorni këtë kod për punë akademike, ju lutem citoni punimin:
+```text
+outputs/adaptive_80r.csv
+outputs/adaptive_80r_ablate_compression.csv
+```
+
+The same procedure can be applied to the other adaptive mechanisms.
+
+This experimental design makes it possible to isolate the contribution of individual controller dimensions while preserving the behaviour of the remaining adaptive components.
+
+### 9.5. Result generation
+
+After completing the experiments, run the analysis scripts to generate the summary tables and figures.
+
+The resulting CSV files and visualizations provide the basis for evaluating predictive performance, communication overhead, client decisions, and adaptation under concept drift.
+
+## 10. Repository Structure
+
+```text
+adaptive-fl-concept-drift/
+│
+├── src/
+│   ├── config.py
+│   ├── data_loader.py
+│   ├── features.py
+│   ├── models.py
+│   ├── device_state.py
+│   ├── drift.py
+│   ├── compression.py
+│   ├── controller.py
+│   └── fl_simulation.py
+│
+├── tests/
+│   ├── fixtures/
+│   │   └── tiny_iot_telemetry.csv
+│   └── test_pipeline.py
+│
+├── data/
+│   └── README.md
+│
+├── outputs/
+│
+├── run_experiment.py
+├── analyze_results.py
+├── plot_drift_comparison.py
+├── requirements.txt
+├── LICENSE
+└── README.md
+```
+
+### Main implementation components
+
+| Component | Description |
+|---|---|
+| `src/config.py` | Experiment presets, device profiles, configuration parameters, and controller thresholds. |
+| `src/data_loader.py` | Dataset loading, preprocessing, and device-specific data partitioning. |
+| `src/features.py` | Lag-based, rolling-window, and cyclical feature engineering for full and lightweight model variants. |
+| `src/models.py` | Linear regression model with gradient descent and gradient clipping, compatible with FedAvg aggregation. |
+| `src/device_state.py` | Simulation of battery, CPU, RAM, and network state, including battery evolution. |
+| `src/drift.py` | Concept drift injection and EWMA-based drift detection. |
+| `src/compression.py` | 8-bit quantization and delta-based model update compression. |
+| `src/controller.py` | Core adaptive controller implementing the mapping from nine input signals to six client-side decisions. |
+| `src/fl_simulation.py` | Round-by-round orchestration of the federated learning simulation. |
+| `run_experiment.py` | Command-line interface for experiment execution. |
+| `analyze_results.py` | Aggregate result analysis, comparisons, summary tables, and visualizations. |
+| `plot_drift_comparison.py` | Target-client-specific concept drift analysis and visualization. |
+
+## 11. Citation
+
+If you use this implementation in academic research, please cite the associated paper:
 
 ```bibtex
 @article{shkurti2026fedadaptive,
   title   = {Federated Adaptive Forecasting for Heterogeneous IoT Sensor Networks Under Concept Drift},
   author  = {Shkurti, Lamir and TODO: Co-Author},
-  journal = {TODO: pas pranimit, shto journal-in/DOI-n e MDPI},
+  journal = {TODO: Journal name},
   year    = {2026}
 }
 ```
 
-## 12. Licenca
+The BibTeX entry should be updated with the final author list, journal information, and DOI once the paper has been accepted and published.
 
-MIT -- shih skedarin `LICENSE`. Dataset-i (`data/iot_telemetry_data.csv`,
-Kaggle, shkarkohet vetë sipas `data/README.md`) **NUK** është pjesë e kësaj
-licence dhe mbetet nën kushtet e Kaggle-t/autorit origjinal (shih §3).
-# adaptive-fl-concept-drift
+## 12. License and Dataset Availability
+
+The source code is released under the **MIT License**. See the `LICENSE` file for details.
+
+The dataset is not included in this repository. The `data/iot_telemetry_data.csv` file must be obtained separately from Kaggle, as described in `data/README.md`.
+
+The dataset remains subject to the licensing and usage conditions established by Kaggle and its original authors. The MIT License covering this repository does not extend to the third-party dataset.
+
+---
+
+**Research paper:** *Federated Adaptive Forecasting for Heterogeneous IoT Sensor Networks Under Concept Drift* (2026, under review).
+
+**Author:** Lamir Shkurti et al.
+
+**Repository:** `adaptive-fl-concept-drift`
