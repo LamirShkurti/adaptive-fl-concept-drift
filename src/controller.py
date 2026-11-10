@@ -1,31 +1,3 @@
-"""
-Kontrolluesi adaptiv -- kontributi qendror i ri. Per çdo klient, çdo raund,
-lexon 9 sinjale dhe vendos 6 veprime (shih README per shpjegim te plote te
-çdo pragu, qe te gjitha vijne nga config.ControllerThresholds).
-
-Sinjalet hyrese (InputSignals):
-  1. battery_pct            -- niveli i baterise (0-100, 100 = jo-bateri/prize)
-  2. cpu_busy_pct            -- shfrytezim CPU gjate nje raundi tipik trajnimi
-  3. ram_free_mb             -- RAM e lire
-  4. bandwidth_mbps          -- cilesia e rrjetit (bandwidth)
-  5. latency_ms              -- vonesa e rrjetit
-  6. new_samples             -- sasia e te dhenave te reja te mbledhura kete raund
-  7. distribution_skew       -- sa larg eshte shperndarja lokale e fundit nga
-                                 shperndarja historike e ketij klienti (0 = asnje ndryshim)
-  8. recent_rmse_trend       -- (rmse_raund_fundit - rmse_mesatare_e_fundit) / rmse_mesatare
-                                 (negativ = po permiresohet, pozitiv = po keqesohet)
-  9. drift_ratio             -- raporti EWMA/baseline nga DriftDetector (>1 = drift i mundshem)
-
-Veprimet dalese (Decision):
-  1. should_train            -- a trajnon fare kete raund
-  2. local_epochs             -- sa epochs lokale (0 nese should_train=False)
-  3. should_send_update        -- a e dergon update-in kete raund (mund te trajnoje
-                                 lokalisht pa dërguar, per te kursyer rrjet/bateri)
-  4. update_mode               -- "full" | "compressed"
-  5. model_active              -- nese False, klienti sherben parashikimin e fundit
-                                 te mire te njohur ne vend qe te perdor modelin aktual
-  6. model_variant              -- "full" | "lite" (kalim ne modelin me 2 features)
-"""
 
 from __future__ import annotations
 
