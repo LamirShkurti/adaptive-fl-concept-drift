@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""
-Analizon dhe krahason logjet e run_experiment.py (p.sh. adaptive vs
-non_adaptive, me/pa drift) -- prodhon figurat/tabelat per punim.
-
-Perdorim:
-    python analyze_results.py --runs outputs/adaptive_60r.csv outputs/non_adaptive_60r.csv \
-        --labels Adaptive NonAdaptive --output-dir outputs/figures
-"""
 
 from __future__ import annotations
 
