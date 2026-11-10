@@ -1,21 +1,3 @@
-"""
-Injektim dhe zbulim i concept drift.
-
-Dataset-i Kaggle mbulon vetem ~1 jave, pra s'ka drift stinor afatgjate si ne
-Tetovo (Tetor kunder Janar). Per te vleresuar kontrolluesin nen drift,
-INJEKTOJME shprehimisht dy lloj drift-i te njohur ne literature (taksonomia
-Gama et al. 2014) mbi te dhenat REALE gjate fazes "live" te simulimit (jo gjate
-trajnimit fillestar) -- deklarohet qarte ne punim si skenar vleresimi, jo si
-nje fenomen i zbuluar organikisht ne dataset.
-
-  - "gradual_sensor_bias": bias aditiv qe rritet ngadale (si ngrohja diellore
-    e panelit te node4/UB ne punimin e meparshem) -- shtohet NE TE GJITHA
-    kolonat qe permbajne 'temp' (target + features perkatese), qe sensori te
-    mbetet i vet-konsistent (ashtu si nje defekt fizik real i kalibrimit).
-  - "abrupt_relationship_shift": ne nje moment te vetem, shkallezohet marrdhenia
-    humidity->temp (p.sh. sensori i lagështise defektohet/ndryshon montimi) --
-    drift "i papritur" klasik, qe prish korrelacionin e mesuar nga modeli.
-"""
 
 from __future__ import annotations
 
