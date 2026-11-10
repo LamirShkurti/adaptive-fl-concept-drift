@@ -456,6 +456,6 @@ The dataset remains subject to the licensing and usage conditions established by
 
 **Research paper:** *Federated Adaptive Forecasting for Heterogeneous IoT Sensor Networks Under Concept Drift* (2026, under review).
 
-**Author:** Lamir Shkurti et al.
+**Author:** Lamir Shkurti.
 
 **Repository:** `adaptive-fl-concept-drift`
