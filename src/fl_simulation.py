@@ -1,20 +1,3 @@
-"""
-Orkestrimi i simulimit Federated Learning: lidh data_loader + features +
-models + device_state + drift + controller + compression ne nje lak
-raund-pas-raundi, per politiken "adaptive" ose "non_adaptive".
-
-Protokolli per raund r, per çdo klient c (online/walk-forward, pa leakage):
-  1. VLERËSO: parashiko chunk_r me peshat qe klienti ka TASHME (para se te
-     shohe chunk_r) -- kjo eshte gabimi real "si do te performonte sot".
-  2. Mostro gjendjen e burimeve (bateri/CPU/RAM/rrjet) nga profili i klases.
-  3. Kontrolluesi (adaptiv ose jo-adaptiv) vendos 6 veprimet duke pare
-     sinjalet (perfshi gabimin e sapo-llogaritur te hapit 1 dhe EWMA i drift-it).
-  4. Nese should_train: terheq peshat globale (nese ekzistojne), trajno E
-     epochs lokale mbi chunk_r (variant full ose lite, sipas vendimit #6).
-  5. Nese should_send_update: paketo peshat (full ose te kompresuara) dhe
-     "dergoji" serverit -> FedAvg i rifreskon peshat globale (te atij varianti).
-  6. Kosto energjie aplikohet gjithmone (trajnim + dergim ndikojne baterine).
-"""
 
 from __future__ import annotations
 
