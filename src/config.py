@@ -1,17 +1,3 @@
-"""
-Konfigurimi qendror i sistemit Federated Adaptive Forecasting.
-
-Mban:
-  - Preset-in e dataset-it (Environmental Sensor Telemetry Data, Kaggle).
-  - Parametrat e eksperimentit FL (raunde, horizon, features).
-  - Profilet e pajisjeve (bateri/energji, CPU/RAM, rrjet) per secilin "device class",
-    te kalibruara nga numra te matur REALISHT ne dy projektet e metershme:
-      * UseCase1_R30_6C Excel logs (CPU%, temp CPU, RAM, bandwidth, ping) nga
-        projekti i Federated Learning me RPi3/4/5/6 + MiniPC + Laptop.
-      * Profilimi Arduino MKR1000 (instruksione/cikle/latence) nga punimi i
-        parashikimit te temperatures (Section 4.5 i punimit + arduino_config.h).
-  - Prangat per kontrolluesin adaptiv (6 vendimet).
-"""
 
 from __future__ import annotations
 
