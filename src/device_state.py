@@ -1,12 +1,3 @@
-"""
-Gjendja e simuluar e nje klienti FL ndermjet raundeve: bateri, CPU/RAM/rrjet
-te mostruara nga profili i klases (shih config.DEVICE_CLASSES), dhe sinjali
-i "te dhenave te reja" per raund. Bateria evoluon REALISHT ne kete simulim
-(nuk eshte vetem nje numer i rastesishem çdo raund) -- zbret sipas rrymes se
-tërhequr (idle kundrejt training) dhe kohezgjatjes se raundit, dhe mund te
-rimbushet periodikisht (modelon power-bank te ringarkuar / node me panel diellor)
-nese 'recharge_every_n_rounds' > 0.
-"""
 
 from __future__ import annotations
 
