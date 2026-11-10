@@ -1,10 +1,3 @@
-"""
-Kompresim i update-it te modelit (vendimi #4 i kontrolluesit adaptiv):
-  - "full": dergo vektorin e peshave float64 pa ndryshim.
-  - "compressed": delta ndaj raundit te fundit te dërguar + kuantizim 8-bit
-    (linear, min-max per-vektor) -- qasje standarde dhe e thjeshte per
-    krahasim real bajte-per-bajte, jo vetem teorike.
-"""
 
 from __future__ import annotations
 
